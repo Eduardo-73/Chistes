@@ -23,15 +23,15 @@ public class Panel extends JPanel {
     private JLabel lblLenguaje, lblCategoria, lblCantidad;
     private JComboBox cB;
     private JRadioButton rB;
-    
-    public Panel(){
+
+    public Panel() {
         this.setLayout(new FlowLayout());
         this.setBackground(Color.DARK_GRAY);
         this.setSize(ANCHO_PANEL, ALTO_PANEL);
         inicializarComponentes();
     }
-    
-    private void inicializarComponentes(){
+
+    private void inicializarComponentes() {
         lblLenguaje = new JLabel("");
         this.add(lblLenguaje);
     }
