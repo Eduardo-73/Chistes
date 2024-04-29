@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import modelos2.ListaChistes;
 
 /**
  *
@@ -27,13 +28,15 @@ public class Panel extends JPanel {
     public static final int ANCHO_PANEL = 600;
     public static final int ALTO_PANEL = 500;
 
-    private JButton generarChistes, cerrar;
+    private JButton btnGenerar, btnCerrar;
     private JLabel lblLenguaje, lblCategoria, lblCantidad;
     private JComboBox cB;
     private JRadioButton cualquier, customizado;
     private JCheckBox prog, vari, osc, ret, esc, nav;
     private ButtonGroup grupo;
     private JTextField cantidadTexto;
+    private String categoria, idioma;
+    private int cant;
 
     public Panel() {
         this.setLayout(new FlowLayout());
@@ -46,14 +49,16 @@ public class Panel extends JPanel {
         lblLenguaje = new JLabel("Seleccione el idioma: ");
         lblLenguaje.setForeground(Color.white);
         this.add(lblLenguaje);
-        String[] paises = {"es - español", "es - inglés", "de - alemán",
-            "cs - checo", "fr - francés", "pt - portugués"};
+        String[] paises = {"es - Español", "en - Inglés", "de - Alemán",
+            "cs - Checo", "fr - Francés", "pt - Portugués"};
         cB = new JComboBox(paises);
         this.add(cB);
+        idioma = cB.getSelectedItem().toString();
+        System.out.println(idioma);
         lblCategoria = new JLabel("Seleccione categoria/categorías: ");
         lblCategoria.setForeground(Color.white);
         this.add(lblCategoria);
-        cualquier = new JRadioButton("Cualquier");
+        cualquier = new JRadioButton("Any");
         cualquier.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -65,6 +70,8 @@ public class Panel extends JPanel {
                     esc.setEnabled(false);
                     nav.setEnabled(false);
                 }
+                categoria = cualquier.getSelectedIcon().toString();
+                System.out.println(categoria);
             }
         });
         this.add(cualquier);
@@ -80,16 +87,19 @@ public class Panel extends JPanel {
                     esc.setEnabled(true);
                     nav.setEnabled(true);
                 }
+                if (customizado.isSelected()) {
+                    categoria = prog.toString();
+                }
             }
         });
         this.add(customizado);
-        prog = new JCheckBox("Programación");
+        prog = new JCheckBox("Programming");
         prog.setEnabled(false);
         this.add(prog);
-        vari = new JCheckBox("Varios");
+        vari = new JCheckBox("Misc");
         vari.setEnabled(false);
         this.add(vari);
-        osc = new JCheckBox("Oscuro");
+        osc = new JCheckBox("Dark");
         osc.setEnabled(false);
         this.add(osc);
         ret = new JCheckBox("Pun");
@@ -98,7 +108,7 @@ public class Panel extends JPanel {
         esc = new JCheckBox("Spooky");
         esc.setEnabled(false);
         this.add(esc);
-        nav = new JCheckBox("Navidad");
+        nav = new JCheckBox("Christmas");
         nav.setEnabled(false);
         this.add(nav);
         grupo = new ButtonGroup();
@@ -109,13 +119,41 @@ public class Panel extends JPanel {
         this.add(lblCantidad);
         cantidadTexto = new JTextField(2);
         this.add(cantidadTexto);
+        cantidadTexto.setText("1");
         String stringCantidad = cantidadTexto.getText();
         if (!stringCantidad.isEmpty()) {
-            int cant = Integer.parseInt(stringCantidad);
+            cant = Integer.parseInt(stringCantidad);
         } else {
             JOptionPane.showMessageDialog(null,
                     "Introduce una cantidad");
         }
+        btnGenerar = new JButton("Generar chistes");
+        this.add(btnGenerar);
+        btnGenerar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                System.out.println(crearURL(categoria, idioma, cant));
+            }
+        });
+        btnCerrar = new JButton("Salir");
+        this.add(btnCerrar);
+        btnCerrar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                System.exit(0);
+            }
+        });
+    }
+
+    private String crearURL(String categoria, String idioma,
+            int cantidad) {
+        String urlBase = "https://v2.jokeapi.dev/joke/";
+        String[] s = idioma.split("-");
+        String crear = urlBase + categoria + "?lang=" + s[0] + "&amount=" + cantidad;
+        return crear;
+    }
+
+    private void generarChistes(String url) {
 
     }
 }
