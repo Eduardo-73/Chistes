@@ -87,30 +87,45 @@ public class Panel extends JPanel {
                     esc.setEnabled(true);
                     nav.setEnabled(true);
                 }
-                if (customizado.isSelected()) {
-                    categoria = prog.toString();
-                }
             }
         });
         this.add(customizado);
         prog = new JCheckBox("Programming");
         prog.setEnabled(false);
         this.add(prog);
+        if(prog.isSelected()){
+            categoria = "Programming";
+        }
         vari = new JCheckBox("Misc");
         vari.setEnabled(false);
         this.add(vari);
+        if(vari.isSelected()){
+            categoria = "Misc";
+        }
         osc = new JCheckBox("Dark");
         osc.setEnabled(false);
         this.add(osc);
+        if(osc.isSelected()){
+            categoria = "Dark";
+        }
         ret = new JCheckBox("Pun");
         ret.setEnabled(false);
         this.add(ret);
+        if(ret.isSelected()){
+            categoria = "Pun";
+        }
         esc = new JCheckBox("Spooky");
         esc.setEnabled(false);
         this.add(esc);
+        if(esc.isSelected()){
+            categoria = "Spooky";
+        }
         nav = new JCheckBox("Christmas");
         nav.setEnabled(false);
         this.add(nav);
+        if(nav.isSelected()){
+            categoria = "Christmas";
+        }
         grupo = new ButtonGroup();
         grupo.add(cualquier);
         grupo.add(customizado);
