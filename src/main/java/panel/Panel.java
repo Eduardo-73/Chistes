@@ -4,10 +4,16 @@
  */
 package panel;
 
+import conexion_http.ConexionHTTP;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -17,7 +23,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import modelos2.Joke;
 import modelos2.ListaChistes;
+import serviciojson.JsonService;
 
 /**
  *
@@ -53,8 +61,6 @@ public class Panel extends JPanel {
             "cs - Checo", "fr - Francés", "pt - Portugués"};
         cB = new JComboBox(paises);
         this.add(cB);
-        idioma = cB.getSelectedItem().toString();
-        System.out.println(idioma);
         lblCategoria = new JLabel("Seleccione categoria/categorías: ");
         lblCategoria.setForeground(Color.white);
         this.add(lblCategoria);
@@ -70,8 +76,6 @@ public class Panel extends JPanel {
                     esc.setEnabled(false);
                     nav.setEnabled(false);
                 }
-                categoria = cualquier.getSelectedIcon().toString();
-                System.out.println(categoria);
             }
         });
         this.add(cualquier);
@@ -93,39 +97,21 @@ public class Panel extends JPanel {
         prog = new JCheckBox("Programming");
         prog.setEnabled(false);
         this.add(prog);
-        if(prog.isSelected()){
-            categoria = "Programming";
-        }
         vari = new JCheckBox("Misc");
         vari.setEnabled(false);
         this.add(vari);
-        if(vari.isSelected()){
-            categoria = "Misc";
-        }
         osc = new JCheckBox("Dark");
         osc.setEnabled(false);
         this.add(osc);
-        if(osc.isSelected()){
-            categoria = "Dark";
-        }
         ret = new JCheckBox("Pun");
         ret.setEnabled(false);
         this.add(ret);
-        if(ret.isSelected()){
-            categoria = "Pun";
-        }
         esc = new JCheckBox("Spooky");
         esc.setEnabled(false);
         this.add(esc);
-        if(esc.isSelected()){
-            categoria = "Spooky";
-        }
         nav = new JCheckBox("Christmas");
         nav.setEnabled(false);
         this.add(nav);
-        if(nav.isSelected()){
-            categoria = "Christmas";
-        }
         grupo = new ButtonGroup();
         grupo.add(cualquier);
         grupo.add(customizado);
@@ -135,19 +121,42 @@ public class Panel extends JPanel {
         cantidadTexto = new JTextField(2);
         this.add(cantidadTexto);
         cantidadTexto.setText("1");
-        String stringCantidad = cantidadTexto.getText();
-        if (!stringCantidad.isEmpty()) {
-            cant = Integer.parseInt(stringCantidad);
-        } else {
-            JOptionPane.showMessageDialog(null,
-                    "Introduce una cantidad");
-        }
         btnGenerar = new JButton("Generar chistes");
         this.add(btnGenerar);
         btnGenerar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                if (prog.isSelected()) {
+                    categoria = "Programming";
+                } else if (vari.isSelected()) {
+                    categoria = "Misc";
+                } else if (osc.isSelected()) {
+                    categoria = "Dark";
+                } else if (ret.isSelected()) {
+                    categoria = "Pun";
+                } else if (esc.isSelected()) {
+                    categoria = "Spooky";
+                } else if (nav.isSelected()) {
+                    categoria = "Christmas";
+                } else if (cualquier.isSelected()) {
+                    categoria = "Any";
+                }
+                String stringCantidad = cantidadTexto.getText();
+                if (!stringCantidad.isEmpty()) {
+                    cant = Integer.parseInt(stringCantidad);
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Introduce una cantidad");
+                }
+                idioma = cB.getSelectedItem().toString();
                 System.out.println(crearURL(categoria, idioma, cant));
+                String url = crearURL(categoria, idioma, cant);
+                try {
+                    JOptionPane.showMessageDialog(null,
+                            generarChistes(url));
+                } catch (IOException ex) {
+                    System.out.println("Error");;
+                }
             }
         });
         btnCerrar = new JButton("Salir");
@@ -163,12 +172,26 @@ public class Panel extends JPanel {
     private String crearURL(String categoria, String idioma,
             int cantidad) {
         String urlBase = "https://v2.jokeapi.dev/joke/";
-        String[] s = idioma.split("-");
+        String[] s = idioma.split("\\s*-\\s*");
         String crear = urlBase + categoria + "?lang=" + s[0] + "&amount=" + cantidad;
         return crear;
     }
 
-    private void generarChistes(String url) {
-
+    private String generarChistes(String url) throws IOException {
+        String fichero = ConexionHTTP.peticionHttpGet(url);
+        ListaChistes chistes = (ListaChistes) JsonService.stringToPojo(fichero, ListaChistes.class);
+        List<String> lista = new ArrayList();
+        String mostrar = "";
+        for (int i = 0; i < chistes.getJokes().size(); i++) {
+            if (chistes.getJokes().get(i).getType().equals("twopart")) {
+                lista.add(chistes.getJokes().get(i).getSetup() + " " + chistes.getJokes().get(i).getDelivery());
+            } else {
+                lista.add(chistes.getJokes().get(i).getJoke());
+            }
+        }
+        for (int i = 0; i < lista.size(); i++) {
+            mostrar += (i + 1) + " --> " + lista.get(i);
+        }
+        return mostrar;
     }
 }
